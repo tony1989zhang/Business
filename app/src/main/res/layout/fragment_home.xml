@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/color_fed952"
+        android:gravity="center_vertical"
+        android:padding="10dp"
+        >
+        <TextView
+            android:id="@+id/tv_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:background="@drawable/bar_code_scan_icon"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_home_edittext"
+            android:layout_toLeftOf="@id/tv_menu"
+            android:layout_toRightOf="@id/tv_scan"
+            android:textColor="@color/color_999999"
+            android:text="请输入宝贝关键字"
+            android:gravity="center"
+            android:padding="6dp"
+            android:textSize="16sp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+
+            />
+
+        <TextView
+            android:id="@+id/tv_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/category"
+            android:layout_centerInParent="true"
+            android:layout_alignParentRight="true"
+            />
+    </RelativeLayout>
+    <ImageView
+        android:id="@+id/iv_page_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:scaleType="centerInside"
+        android:background="@color/white"
+        android:src="@drawable/animation_page_loading"
+        android:visibility="visible"
+        />
+    <ListView
+        android:id="@+id/listview_home"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@color/color_cccccc"
+        android:dividerHeight="0.5dp"
+        android:visibility="gone"
+        >
+
+    </ListView>
+
+
+
+</LinearLayout>
