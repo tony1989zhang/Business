@@ -1,7 +1,11 @@
 package org.zcn.business.activity;
 
+import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -9,15 +13,26 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.king.zxing.Intents;
 
 import org.zcn.business.R;
 import org.zcn.business.fragment.HomeFragment;
 import org.zcn.business.fragment.MessageFragment;
 import org.zcn.business.fragment.MineFragment;
+import org.zcn.business.utils.zxing.CustomXingActivity;
 
 import cn.jzvd.Jzvd;
 
 public class HomeActivity extends BaseActivity implements View.OnClickListener {
+
+    /**
+     * 扫描二维码 常量使用
+     */
+    public static final String KEY_TITLE = "key_title";
+    public static final String KEY_IS_CONTINUOUS = "key_continuous_scan";
+    public static final int REQUEST_CODE_SCAN = 0X01;
 
     private LinearLayout mLinearContent;
     private TextView mIvTabHome;
@@ -43,6 +58,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     private HomeFragment homeFragment;
     private  MessageFragment messageFragment;
     private MineFragment mineFragment;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +98,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        FragmentTransaction transaction = manager.beginTransaction();
+        FragmentTransaction  transaction = manager.beginTransaction();
         switch (v.getId()){
             case  R.id.layout_relativit_tab_home:
 
@@ -101,20 +117,7 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
                     transaction.show(homeFragment);
                 break;
             case R.id.layout_relativit_tab_message:
-
-                //更改Tab 颜色，将当前的Tab 颜色更改为选定，将其他Tab颜色更改为未选定
-                mIvTabHome.setBackgroundResource(R.drawable.comui_tab_home);
-                mIvTabMessage.setBackgroundResource(R.drawable.comui_tab_message_selected);
-                mIvTabMine.setBackgroundResource(R.drawable.comui_tab_person);
-
-                if (messageFragment == null) {
-                    messageFragment = new MessageFragment();
-                    transaction.add(R.id.linear_content, messageFragment);
-                }
-                    //to do
-                    hintFragment(transaction,homeFragment);
-                    hintFragment(transaction,mineFragment);
-                    transaction.show(messageFragment);
+                showMessageFragment(transaction);
 
                 break;
             case R.id.layout_relativit_tab_mine:
@@ -137,11 +140,85 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         transaction.commit();
     }
 
+    private void showMessageFragment(FragmentTransaction transaction) {
+        //更改Tab 颜色，将当前的Tab 颜色更改为选定，将其他Tab颜色更改为未选定
+        mIvTabHome.setBackgroundResource(R.drawable.comui_tab_home);
+        mIvTabMessage.setBackgroundResource(R.drawable.comui_tab_message_selected);
+        mIvTabMine.setBackgroundResource(R.drawable.comui_tab_person);
+
+        if (messageFragment == null) {
+            messageFragment = new MessageFragment();
+            transaction.add(R.id.linear_content, messageFragment);
+        }
+        //to do
+        hintFragment(transaction,homeFragment);
+        hintFragment(transaction,mineFragment);
+        transaction.show(messageFragment);
+    }
+
     private void hintFragment(FragmentTransaction transaction, Fragment fragment) {
         if (fragment != null) {
             transaction.hide(fragment);
         }
     }
+
+
+
+
+
+    //跳转二维码扫描页面
+    private void startScan() {
+        ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeCustomAnimation(this,R.anim.in,R.anim.out);
+        Intent intent = new Intent(this, CustomXingActivity.class);
+        intent.putExtra(KEY_TITLE,"我想扫一扫");
+        intent.putExtra(KEY_IS_CONTINUOUS,false);
+        ActivityCompat.startActivityForResult(this,intent,REQUEST_CODE_SCAN,optionsCompat.toBundle());
+    }
+
+    //检查当前是否有调用摄像头权限
+    public void checkPermission() {
+        performCodeWithPermission("调用摄像头", new PermissionCallback() {
+            @Override
+            public void hasPermission() {
+                //开启二维码扫描
+                startScan();
+            }
+
+            @Override
+            public void noPermission() {
+                //做其他处理
+                Toast.makeText(HomeActivity.this, "需要到设置里面开启调用摄像机权限", Toast.LENGTH_SHORT).show();
+            }
+        }, Manifest.permission.CAMERA);
+    }
+
+    //扫描二维码后返回的结果
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK && data!=null){
+            switch (requestCode){
+                case REQUEST_CODE_SCAN:
+                    String result = data.getStringExtra(Intents.Scan.RESULT);
+                    Toast.makeText(this,result,Toast.LENGTH_SHORT).show();
+                    //扫描成功后，切换到消息页面
+                    onClick(mLayoutRelativitTabMessage);
+                    break;
+            }
+
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public void onBackPressed() {
